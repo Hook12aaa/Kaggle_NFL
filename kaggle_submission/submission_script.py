@@ -517,7 +517,7 @@ def make_predict_fn(model, device):
     """
     model.eval()
 
-    def predict_fn(test_batch, test_input_batch):
+    def predict(test_batch, test_input_batch):
         # The gateway sends polars DataFrames — convert to pandas
         if isinstance(test_input_batch, pl.DataFrame):
             play_input = test_input_batch.to_pandas()
@@ -534,15 +534,20 @@ def make_predict_fn(model, device):
         merged = tb.merge(pred, on=["nfl_id", "frame_id"], how="left")
         return merged[["x", "y"]]
 
-    return predict_fn
+    return predict
 
 
 # ---------------------------------------------------------------------------
 # Load model and start the inference server
 # ---------------------------------------------------------------------------
 
-# Kaggle mounts datasets here
-MODEL_PATH = "/kaggle/input/nfl-bdb-2026-trajectory-model/best_model.pt"
+import os
+import glob
+
+# Find model weights — path varies between initial run and competition rerun
+candidates = glob.glob("/kaggle/input/**/best_model.pt", recursive=True)
+MODEL_PATH = candidates[0] if candidates else "/kaggle/input/nfl-bdb-2026-trajectory-model/best_model.pt"
+print(f"Loading model from: {MODEL_PATH}")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -552,12 +557,18 @@ model.to(device)
 model.eval()
 
 predict_fn = make_predict_fn(model, device)
+print("Model loaded and predict function ready")
 
-# Register with the competition's gRPC server
+# Register with the competition's gRPC inference server
+import sys
+sys.path.insert(0, "/kaggle/input/competitions/nfl-big-data-bowl-2026-prediction/")
 from kaggle_evaluation.nfl_inference_server import NFLInferenceServer
 
 server = NFLInferenceServer(predict_fn)
-server.serve()
 
-# For local testing, uncomment:
-# server.run_local_gateway(data_paths=("/kaggle/input/nfl-big-data-bowl-2026-prediction/",))
+if os.getenv("KAGGLE_IS_COMPETITION_RERUN"):
+    server.serve()
+else:
+    server.run_local_gateway(
+        data_paths=("/kaggle/input/competitions/nfl-big-data-bowl-2026-prediction/",)
+    )
