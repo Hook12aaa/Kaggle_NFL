@@ -1,0 +1,16 @@
+{
+  "id": "chepaldin/nfl-bdb-2026-trajectory-prediction",
+  "title": "nfl-bdb-2026-trajectory-prediction",
+  "code_file": "submission_script.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "competition": "nfl-big-data-bowl-2026-prediction",
+  "dataset_sources": [
+    "chepaldin/nfl-bdb-2026-trajectory-model"
+  ],
+  "competition_sources": [
+    "nfl-big-data-bowl-2026-prediction"
+  ]
+}
