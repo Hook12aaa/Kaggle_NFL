@@ -1,26 +1,26 @@
 # NFL Big Data Bowl 2026 - Predicting Player Movement
 
-I came across the [NFL Big Data Bowl 2026 Prediction competition](https://www.kaggle.com/competitions/nfl-big-data-bowl-2026-prediction) a bit late, but I couldn't resist giving it a shot. The idea of predicting where players will move *while the ball is in the air* — using only what happened before the throw — is such a fun problem. It sits right at the intersection of physics, human behavior, and sports strategy.
+I came across the [NFL Big Data Bowl 2026 Prediction competition](https://www.kaggle.com/competitions/nfl-big-data-bowl-2026-prediction) a bit late, but I couldn't resist giving it a shot. The idea of predicting where players will move *while the ball is in the air*, using only what happened before the throw, is such a fun problem. It sits right at the intersection of physics, human behaviour, and sports strategy.
 
 ## The Problem
 
 On every passing play in football, there's a moment between when the quarterback releases the ball and when it arrives. During that window, receivers are running routes, defenders are reacting, and everyone is adjusting. The competition asks: **can you predict those movements before they happen?**
 
-You're given pre-throw tracking data for every player on the field — positions, speeds, accelerations, orientations, sampled at 10Hz — along with where the ball will land. Your job is to output the (x, y) coordinates of select players for every frame while the ball is in the air.
+You're given pre-throw tracking data for every player on the field (positions, speeds, accelerations, orientations, sampled at 10Hz) along with where the ball will land. Your job is to output the (x, y) coordinates of select players for every frame while the ball is in the air.
 
 ## My Approach: Encoder-Decoder LSTM with Displacement Prediction
 
-Rather than predicting absolute positions directly, the model predicts **frame-by-frame displacements** (dx, dy) from each player's last known position. This is more physically grounded — players have momentum and inertia, so modeling the *change* in position makes the learning problem smoother.
+Rather than predicting absolute positions directly, the model predicts **frame-by-frame displacements** (dx, dy) from each player's last known position. This is more physically grounded: players have momentum and inertia, so modelling the *change* in position makes the learning problem smoother.
 
 The architecture has three stages:
 
-**1. Shared Player Encoder** — A single LSTM processes each player's pre-throw tracking sequence (downsampled to 20 frames). Every player on the field goes through the same encoder, producing a 64-dimensional representation of their recent movement pattern.
+**1. Shared Player Encoder** - A single LSTM processes each player's pre-throw tracking sequence (downsampled to 20 frames). Every player on the field goes through the same encoder, producing a 64-dimensional representation of their recent movement pattern.
 
-**2. Attention-Based Context Fusion** — The target player's encoding acts as a query over all other player encodings. This lets the model learn which teammates and defenders matter most for predicting a given player's movement. The attended context gets concatenated with play-level metadata (ball landing position, yardline, play direction) and fused into a 128-dimensional context vector.
+**2. Attention-Based Context Fusion** - The target player's encoding acts as a query over all other player encodings. This lets the model learn which teammates and defenders matter most for predicting a given player's movement. The attended context gets concatenated with play-level metadata (ball landing position, yardline, play direction) and fused into a 128-dimensional context vector.
 
-**3. Autoregressive Decoder** — An LSTM decoder, initialized with the fused context, generates one displacement (dx, dy) per timestep. At each step it receives the previous displacement, the ball's landing coordinates, and the target player's encoding. Displacements are accumulated from the last known position to produce absolute coordinates.
+**3. Autoregressive Decoder** - An LSTM decoder, initialised with the fused context, generates one displacement (dx, dy) per timestep. At each step it receives the previous displacement, the ball's landing coordinates, and the target player's encoding. Displacements are accumulated from the last known position to produce absolute coordinates.
 
-The full model is intentionally compact — **84,290 parameters**. This is a deliberate choice. Compared to many competition entries that reach into the millions of parameters, this lightweight architecture trains fast and generalizes well. It runs comfortably on a MacBook Pro M3 Max using PyTorch's MPS backend.
+The full model is intentionally compact, just **84,290 parameters**. This is a deliberate choice. Compared to many competition entries that reach into the millions of parameters, this lightweight architecture trains fast and generalises well. It runs comfortably on a MacBook Pro M3 Max using PyTorch's MPS backend.
 
 ### Training Details
 
@@ -77,6 +77,6 @@ python run_eval.py
 ## What I'd Try Next
 
 - Adding a position loss (auxiliary MSE on accumulated absolute coordinates) to reduce drift on longer sequences
-- Experimenting with the encoder — temporal convolutions might capture short-range patterns better than LSTMs
+- Experimenting with the encoder: temporal convolutions might capture short-range patterns better than LSTMs
 - Incorporating player physical attributes (height, weight, position) as additional conditioning
 - Ensembling with a non-autoregressive model that predicts all frames at once

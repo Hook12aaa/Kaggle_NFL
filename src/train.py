@@ -18,7 +18,7 @@ def masked_displacement_loss(
     Args:
         pred: (batch, max_frames, 2) predicted displacements.
         target: (batch, max_frames, 2) ground truth displacements.
-        mask: (batch, max_frames) bool — True for valid frames.
+        mask: (batch, max_frames) bool, True for valid frames.
 
     Returns:
         Scalar loss.

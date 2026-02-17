@@ -1,5 +1,5 @@
 """
-NFL Big Data Bowl 2026 — Trajectory Prediction Submission
+NFL Big Data Bowl 2026 - Trajectory Prediction Submission
 =========================================================
 Encoder-Decoder LSTM with displacement prediction.
 Predicts (x, y) positions of players whilst the ball is in the air.
@@ -94,11 +94,11 @@ def compute_displacements(last_input_xy: np.ndarray, output_xy: np.ndarray) -> n
     """Compute per-frame (dx, dy) displacements from absolute positions.
 
     Args:
-        last_input_xy: Array of shape (2,) — the target player's last known (x, y).
-        output_xy: Array of shape (num_frames, 2) — ground truth absolute positions.
+        last_input_xy: Array of shape (2,), the target player's last known (x, y).
+        output_xy: Array of shape (num_frames, 2), ground truth absolute positions.
 
     Returns:
-        Array of shape (num_frames, 2) — per-frame displacements.
+        Array of shape (num_frames, 2), per-frame displacements.
     """
     positions = np.vstack([last_input_xy.reshape(1, 2), output_xy])
     return np.diff(positions, axis=0)
@@ -264,7 +264,7 @@ def collate_plays(samples):
 
 
 # ---------------------------------------------------------------------------
-# Model — Encoder-Decoder LSTM with attention
+# Model - Encoder-Decoder LSTM with attention
 # ---------------------------------------------------------------------------
 
 class PlayerEncoder(nn.Module):
@@ -518,7 +518,7 @@ def make_predict_fn(model, device):
     model.eval()
 
     def predict(test_batch, test_input_batch):
-        # The gateway sends polars DataFrames — convert to pandas
+        # The gateway sends polars DataFrames, so convert to pandas
         if isinstance(test_input_batch, pl.DataFrame):
             play_input = test_input_batch.to_pandas()
         else:
@@ -544,7 +544,7 @@ def make_predict_fn(model, device):
 import os
 import glob
 
-# Find model weights — path varies between initial run and competition rerun
+# Find model weights (path varies between initial run and competition rerun)
 candidates = glob.glob("/kaggle/input/**/best_model.pt", recursive=True)
 MODEL_PATH = candidates[0] if candidates else "/kaggle/input/nfl-bdb-2026-trajectory-model/best_model.pt"
 print(f"Loading model from: {MODEL_PATH}")

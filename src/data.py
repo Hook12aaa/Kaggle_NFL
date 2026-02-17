@@ -120,7 +120,7 @@ def train_val_split(
     val_weeks = val_weeks or [17, 18]
 
     # Week is encoded in the file origin; we need to recover it from game_id
-    # Game IDs follow pattern: YYYYMMDD## — week can be derived from the
+    # Game IDs follow pattern: YYYYMMDD##. Week can be derived from the
     # file they came from. If you loaded via load_train(), add a 'week' column
     # before calling this, or pass pre-filtered DataFrames.
     raise NotImplementedError(

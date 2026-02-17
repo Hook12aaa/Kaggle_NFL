@@ -95,11 +95,11 @@ def compute_displacements(last_input_xy: np.ndarray, output_xy: np.ndarray) -> n
     """Compute per-frame (dx, dy) displacements from absolute positions.
 
     Args:
-        last_input_xy: Array of shape (2,) — the target player's last known (x, y).
-        output_xy: Array of shape (num_frames, 2) — ground truth absolute positions.
+        last_input_xy: Array of shape (2,), the target player's last known (x, y).
+        output_xy: Array of shape (num_frames, 2), ground truth absolute positions.
 
     Returns:
-        Array of shape (num_frames, 2) — per-frame displacements.
+        Array of shape (num_frames, 2), per-frame displacements.
     """
     positions = np.vstack([last_input_xy.reshape(1, 2), output_xy])
     return np.diff(positions, axis=0)
@@ -114,7 +114,7 @@ def extract_play_features(play_input: pd.DataFrame) -> dict:
 
     Returns:
         Dictionary of features for this play. Structure is up to your
-        model design — flat dict for tree models, nested arrays for
+        model design, e.g. flat dict for tree models, nested arrays for
         sequence models, etc.
     """
     raise NotImplementedError
